@@ -1,0 +1,4 @@
+path,textDE,textEN
+dir1/dir2:title,"Titel","Title"
+dir1/dir2/dir3:title,"Titel","Title"
+dir1/dir2/dir3:text,"Text","Text"
