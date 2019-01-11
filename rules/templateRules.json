@@ -1,8 +1,8 @@
 {
   "rules": [
     {
-      "path": "dirA/dirB/dirC",
-      "children": "newChildName"
+      "path": "dir-1/dir-2",
+      "template": "alternativeTemplate"
     }
   ]
 }

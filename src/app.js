@@ -89,12 +89,10 @@ function assignContent(directory, pathFragments, lastTemplate, field) {
       currentDirectory[childDirectory].index = {}
     }
 
-    const templateChildFragment = applyRulesOnChild(lastTemplate, childDirectory)
+    const childTemplateFragment = helper.kebabCaseToPascalCase(childDirectory)
+    const templateNameComponents = helper.getLowerCase(lastTemplate + childTemplateFragment)
 
-    const templateNameComponents =
-        lastTemplate + helper.kebabCaseToPascalCase(templateChildFragment)
-    templateName = helper.getLowerCase(templateNameComponents)
-
+    templateName = getNewRuleTemplate(lastTemplate) || templateNameComponents
     currentDirectory[childDirectory].index.template = templateName
   }
 
@@ -122,21 +120,22 @@ function assignTemplatesContent(templates, entry) {
   let currentTemplate = ""
 
   for (let i = 0; i < pathFragments.length; i++) {
-    const nextTemplateFragment = applyRulesOnChild(currentTemplate, pathFragments[i])
-    currentTemplate += helper.kebabCaseToPascalCase(nextTemplateFragment)
-    currentTemplate = helper.getLowerCase(currentTemplate)
-
+    if (i === 0) {
+      currentTemplate = helper.kebabCaseToPascalCase(pathFragments[i])
+      currentTemplate = helper.getLowerCase(currentTemplate)
+    }
     if (!newTemplates.hasOwnProperty(currentTemplate)) {
       newTemplates[currentTemplate] = {}
     }
 
     const isLastFragment = i === pathFragments.length - 1
-    const childTemplateFragment = applyRulesOnChild(currentTemplate, pathFragments[i + 1])
-    const childTemplate = !isLastFragment && currentTemplate
-      + helper.kebabCaseToPascalCase(childTemplateFragment)
+    const childTemplate = !isLastFragment && (getNewRuleTemplate(currentTemplate) || currentTemplate
+      + helper.kebabCaseToPascalCase(pathFragments[i + 1]))
 
     newTemplates[currentTemplate] = setTemplateProperties(newTemplates[currentTemplate],
       newField, isLastFragment, childTemplate)
+
+    currentTemplate = childTemplate
   }
 
   return newTemplates
@@ -211,17 +210,17 @@ function getTemplateRules(path) {
 }
 
 
-function applyRulesOnChild(parent, child) {
-  let newChild = child
+function getNewRuleTemplate(template) {
+  let newTemplate = undefined
 
   for (const rule of templateRules) {
-    const ruleTemplateName = helper.getTemplateName(rule.path)
+    const rulePathTemplate = helper.getTemplateName(rule.path)
 
-    if (ruleTemplateName === parent) {
-      newChild = rule.children
+    if (rulePathTemplate === template) {
+      newTemplate = rule.template
     }
   }
 
-  return newChild
+  return newTemplate
 }
 
