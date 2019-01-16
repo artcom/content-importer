@@ -90,9 +90,9 @@ function assignContent(directory, pathFragments, lastTemplate, field) {
     }
 
     const childTemplateFragment = helper.kebabCaseToPascalCase(childDirectory)
-    const templateNameComponents = helper.getLowerCase(lastTemplate + childTemplateFragment)
+    const newTemplateName = helper.getLowerCase(lastTemplate + childTemplateFragment)
 
-    templateName = getNewRuleTemplate(lastTemplate) || templateNameComponents
+    templateName = getNewRuleTemplate(lastTemplate) || newTemplateName
     currentDirectory[childDirectory].index.template = templateName
   }
 
@@ -117,13 +117,10 @@ function assignTemplatesContent(templates, entry) {
     type: "string"
   }
 
-  let currentTemplate = ""
+  let currentTemplate = helper.kebabCaseToPascalCase(pathFragments[0])
+  currentTemplate = helper.getLowerCase(currentTemplate)
 
   for (let i = 0; i < pathFragments.length; i++) {
-    if (i === 0) {
-      currentTemplate = helper.kebabCaseToPascalCase(pathFragments[i])
-      currentTemplate = helper.getLowerCase(currentTemplate)
-    }
     if (!newTemplates.hasOwnProperty(currentTemplate)) {
       newTemplates[currentTemplate] = {}
     }
