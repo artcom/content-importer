@@ -65,4 +65,7 @@ exports.getNameDifference = (parent, child) => {
 exports.getDirectoryPath = path => path.split(":")[0]
 
 
+exports.getPathFragments = path => this.getDirectoryPath(path).split("/")
+
+
 exports.removeLineBreaks = text => text.split("\n").join("")

@@ -32,7 +32,7 @@ function extractContent(existingContent, existingTemplates, csvContent) {
 
   for (const entry of csvContent) {
     const field = getFieldProperties(entry)
-    const pathFragments = helper.getDirectoryPath(entry.path).split("/")
+    const pathFragments = helper.getPathFragments(entry.path)
     output.content[area] = assignContent(output.content[area],
       pathFragments, "", field)
 
@@ -111,26 +111,31 @@ function assignContent(directory, pathFragments, lastTemplate, field) {
 
 function assignTemplatesContent(templates, entry) {
   const newTemplates = templates
-  const pathFragments = helper.getDirectoryPath(entry.path).split("/")
+  const pathFragments = helper.getPathFragments(entry.path)
   const newField = {
     name: helper.getFieldName(entry.path),
     type: "string"
   }
-
+  const readFragments = []
+  
   let currentTemplate = helper.kebabCaseToPascalCase(pathFragments[0])
   currentTemplate = helper.getLowerCase(currentTemplate)
 
   for (let i = 0; i < pathFragments.length; i++) {
+    readFragments.push(pathFragments[i])
+
     if (!newTemplates.hasOwnProperty(currentTemplate)) {
       newTemplates[currentTemplate] = {}
     }
 
     const isLastFragment = i === pathFragments.length - 1
-    const childTemplate = !isLastFragment && (getNewRuleTemplate(currentTemplate) || currentTemplate
-      + helper.kebabCaseToPascalCase(pathFragments[i + 1]))
-
+    let childTemplate = !isLastFragment && 
+      (getNewRuleTemplate(helper.fragmentsToTemplateName(readFragments)) ||
+      currentTemplate + helper.kebabCaseToPascalCase(pathFragments[i + 1]))
+  
     newTemplates[currentTemplate] = setTemplateProperties(newTemplates[currentTemplate],
       newField, isLastFragment, childTemplate)
+
 
     currentTemplate = childTemplate
   }
