@@ -74,7 +74,7 @@ function getFieldProperties(entry) {
 }
 
 
-function assignContent(directory, entry, iteration = 1) {
+function assignContent(directory, entry, iteration = 0) {
   const pathFragments = helper.getPathFragments(entry.path)
   const currentDirectory = directory
   const childDirectory = pathFragments[iteration]
@@ -84,9 +84,8 @@ function assignContent(directory, entry, iteration = 1) {
   }
 
   if (generateTemplates) {
-    const path = helper.getDirectoryPath(entry.path)
+    const path = pathFragments.slice(0, iteration + 1).join("/")
     const templateName = templateMap.get(path)
-
     currentDirectory[childDirectory].index.template = templateName
   }
 
@@ -205,16 +204,34 @@ function getTemplateRules(path) {
 
 
 function getNewRuleTemplate(pathFragments) {
-  const path = pathFragments.slice(0, pathFragments.length - 1).join("/")
   let newTemplate
-
   for (const rule of templateRules) {
-    if (path === rule.path) {
+    const ruleFragments = helper.getPathFragments(rule.path)
+    if (arePathsSimilar(pathFragments.slice(0, pathFragments.length - 1), ruleFragments)) {
       newTemplate = rule.template
     }
   }
 
   return newTemplate
+}
+
+
+function arePathsSimilar(pathFragments, ruleFragments) {
+  if (pathFragments.length === ruleFragments.length) {
+    const path = pathFragments.join("/")
+    const rulePath = ruleFragments.join("/")
+    const wildcardFragments = rulePath.split("*")
+
+    for (const fragment of wildcardFragments) {
+      if (path.indexOf(fragment) === -1) {
+        return false
+      }
+    }
+
+    return true
+  } else {
+    return false
+  }
 }
 
 
