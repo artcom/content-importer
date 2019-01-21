@@ -34,7 +34,7 @@ function extractContent(existingContent, existingTemplates, csvContent) {
 
   for (const entry of csvContent) {
     addTemplatesToMap(entry.path)
-    output.content[area] = assignContent(output.content[area], entry)    
+    output.content[area] = assignContent(output.content[area], entry)
 
     if (generateTemplates) {
       output.templates = assignTemplatesContent(output.templates, entry)
@@ -90,9 +90,9 @@ function assignContent(directory, entry, iteration = 1) {
     currentDirectory[childDirectory].index.template = templateName
   }
 
-  if (iteration < pathFragments.length-1) {
+  if (iteration < pathFragments.length - 1) {
     currentDirectory[childDirectory] =
-        assignContent(currentDirectory[childDirectory], entry, iteration+1)
+        assignContent(currentDirectory[childDirectory], entry, iteration + 1)
   } else {
     const field = getFieldProperties(entry)
     currentDirectory[childDirectory].index[field.name] = field.content
@@ -110,7 +110,7 @@ function assignTemplatesContent(templates, entry) {
     type: "string"
   }
   const readFragments = []
-  
+
   let currentTemplate = helper.kebabCaseToPascalCase(pathFragments[0])
   currentTemplate = helper.getLowerCase(currentTemplate)
 
@@ -122,9 +122,9 @@ function assignTemplatesContent(templates, entry) {
     }
 
     const isLastFragment = i === pathFragments.length - 1
-    let childTemplate = !isLastFragment &&
+    const childTemplate = !isLastFragment &&
         templateMap.get(`${readFragments.join("/")}/${pathFragments[i + 1]}`)
-    
+
     newTemplates[currentTemplate] = setTemplateProperties(newTemplates[currentTemplate],
       field, isLastFragment, childTemplate)
 
@@ -205,8 +205,8 @@ function getTemplateRules(path) {
 
 
 function getNewRuleTemplate(pathFragments) {
+  const path = pathFragments.slice(0, pathFragments.length - 1).join("/")
   let newTemplate
-  let path = pathFragments.slice(0, pathFragments.length-1).join("/")
 
   for (const rule of templateRules) {
     if (path === rule.path) {
@@ -223,12 +223,12 @@ function addTemplatesToMap(path) {
   let readFragments
   let template = ""
 
-  for(let i = 0; i < pathFragments.length; i++) {
-    readFragments = pathFragments.slice(0, i+1)
+  for (let i = 0; i < pathFragments.length; i++) {
+    readFragments = pathFragments.slice(0, i + 1)
 
     const ruleTemplate = getNewRuleTemplate(readFragments)
     template = !ruleTemplate ? template + helper.kebabCaseToPascalCase(pathFragments[i])
       : ruleTemplate
     templateMap.set(readFragments.join("/"), helper.getLowerCase(template))
-  }  
+  }
 }
