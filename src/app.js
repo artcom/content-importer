@@ -14,6 +14,8 @@ const area = process.argv[4] || "other"
 const generateTemplates = process.argv[5] === "true" ? true : false || false
 const templateRules = getTemplateRules(process.argv[6])
 
+const templateMap = new Map()
+
 csv()
   .fromFile(csvFilePath)
   .then(main)
@@ -31,10 +33,8 @@ function extractContent(existingContent, existingTemplates, csvContent) {
   const output = getOutputObject(existingContent, existingTemplates)
 
   for (const entry of csvContent) {
-    const field = getFieldProperties(entry)
-    const pathFragments = helper.getPathFragments(entry.path)
-    output.content[area] = assignContent(output.content[area],
-      pathFragments, "", field)
+    addTemplatesToMap(entry.path)
+    output.content[area] = assignContent(output.content[area], entry)    
 
     if (generateTemplates) {
       output.templates = assignTemplatesContent(output.templates, entry)
@@ -74,34 +74,27 @@ function getFieldProperties(entry) {
 }
 
 
-function assignContent(directory, pathFragments, lastTemplate, field) {
+function assignContent(directory, entry, iteration = 1) {
+  const pathFragments = helper.getPathFragments(entry.path)
   const currentDirectory = directory
-  const childDirectory = pathFragments[0]
+  const childDirectory = pathFragments[iteration]
 
-  let templateName = ""
   if (!currentDirectory.hasOwnProperty(childDirectory)) {
     currentDirectory[childDirectory] = { index: {} }
   }
 
-
   if (generateTemplates) {
-    if (!currentDirectory[childDirectory].hasOwnProperty("index")) {
-      currentDirectory[childDirectory].index = {}
-    }
+    const path = helper.getDirectoryPath(entry.path)
+    const templateName = templateMap.get(path)
 
-    const childTemplateFragment = helper.kebabCaseToPascalCase(childDirectory)
-    const newTemplateName = helper.getLowerCase(lastTemplate + childTemplateFragment)
-
-    templateName = getNewRuleTemplate(lastTemplate) || newTemplateName
     currentDirectory[childDirectory].index.template = templateName
   }
 
-  const nextFragments = pathFragments.slice(1)
-
-  if (nextFragments.length > 0) {
+  if (iteration < pathFragments.length-1) {
     currentDirectory[childDirectory] =
-      assignContent(currentDirectory[childDirectory], nextFragments, templateName, field)
+        assignContent(currentDirectory[childDirectory], entry, iteration+1)
   } else {
+    const field = getFieldProperties(entry)
     currentDirectory[childDirectory].index[field.name] = field.content
   }
 
@@ -112,7 +105,7 @@ function assignContent(directory, pathFragments, lastTemplate, field) {
 function assignTemplatesContent(templates, entry) {
   const newTemplates = templates
   const pathFragments = helper.getPathFragments(entry.path)
-  const newField = {
+  const field = {
     name: helper.getFieldName(entry.path),
     type: "string"
   }
@@ -123,18 +116,17 @@ function assignTemplatesContent(templates, entry) {
 
   for (let i = 0; i < pathFragments.length; i++) {
     readFragments.push(pathFragments[i])
-
+    currentTemplate = templateMap.get(readFragments.join("/"))
     if (!newTemplates.hasOwnProperty(currentTemplate)) {
       newTemplates[currentTemplate] = {}
     }
 
     const isLastFragment = i === pathFragments.length - 1
-    let childTemplate = !isLastFragment && 
-      (getNewRuleTemplate(helper.fragmentsToTemplateName(readFragments)) ||
-      currentTemplate + helper.kebabCaseToPascalCase(pathFragments[i + 1]))
-  
+    let childTemplate = !isLastFragment &&
+        templateMap.get(`${readFragments.join("/")}/${pathFragments[i + 1]}`)
+    
     newTemplates[currentTemplate] = setTemplateProperties(newTemplates[currentTemplate],
-      newField, isLastFragment, childTemplate)
+      field, isLastFragment, childTemplate)
 
 
     currentTemplate = childTemplate
@@ -212,13 +204,12 @@ function getTemplateRules(path) {
 }
 
 
-function getNewRuleTemplate(template) {
-  let newTemplate = undefined
+function getNewRuleTemplate(pathFragments) {
+  let newTemplate
+  let path = pathFragments.slice(0, pathFragments.length-1).join("/")
 
   for (const rule of templateRules) {
-    const rulePathTemplate = helper.getTemplateName(rule.path)
-
-    if (rulePathTemplate === template) {
+    if (path === rule.path) {
       newTemplate = rule.template
     }
   }
@@ -226,3 +217,18 @@ function getNewRuleTemplate(template) {
   return newTemplate
 }
 
+
+function addTemplatesToMap(path) {
+  const pathFragments = helper.getPathFragments(path)
+  let readFragments
+  let template = ""
+
+  for(let i = 0; i < pathFragments.length; i++) {
+    readFragments = pathFragments.slice(0, i+1)
+
+    const ruleTemplate = getNewRuleTemplate(readFragments)
+    template = !ruleTemplate ? template + helper.kebabCaseToPascalCase(pathFragments[i])
+      : ruleTemplate
+    templateMap.set(readFragments.join("/"), helper.getLowerCase(template))
+  }  
+}
