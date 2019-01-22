@@ -62,12 +62,24 @@ function getOutputObject(existingContent, existingTemplates) {
 
 
 function getFieldProperties(entry) {
+  let content = {}
+
+  switch(entry.type){
+    case "markdown":
+        content.de = entry.textDE
+        content.en = entry.textEN
+        break;
+    case "number":
+        content = parseFloat(entry.textDE)
+    default:
+        content.de = helper.removeLineBreaks(entry.textDE)
+        content.en = helper.removeLineBreaks(entry.textEN)
+        break;
+  }
+
   const field = {
     name: helper.getFieldName(entry.path),
-    content: {
-      de: helper.removeLineBreaks(entry.textDE),
-      en: helper.removeLineBreaks(entry.textEN)
-    }
+    content
   }
 
   return field
@@ -107,7 +119,7 @@ function assignTemplatesContent(templates, entry) {
   const readFragments = []
   const field = {
     name: helper.getFieldName(entry.path),
-    type: "string"
+    type: entry.type || "string"
   }
 
   let currentTemplate = helper.kebabCaseToPascalCase(pathFragments[0])
@@ -159,6 +171,8 @@ function assignFieldToTemplate(template, newField) {
   for (const field of newTemplate.fields) {
     if (field.name === newField.name) {
       isFieldExistent = true
+      const index = newTemplate.fields.indexOf(field)
+      newTemplate.fields[index] = newField
     }
   }
 
