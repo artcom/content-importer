@@ -104,11 +104,11 @@ function assignContent(directory, entry, iteration = 0) {
 function assignTemplatesContent(templates, entry) {
   const newTemplates = templates
   const pathFragments = helper.getPathFragments(entry.path)
+  const readFragments = []
   const field = {
     name: helper.getFieldName(entry.path),
     type: "string"
   }
-  const readFragments = []
 
   let currentTemplate = helper.kebabCaseToPascalCase(pathFragments[0])
   currentTemplate = helper.getLowerCase(currentTemplate)
@@ -218,20 +218,22 @@ function getNewRuleTemplate(pathFragments) {
 
 function arePathsSimilar(pathFragments, ruleFragments) {
   if (pathFragments.length === ruleFragments.length) {
-    const path = pathFragments.join("/")
-    const rulePath = ruleFragments.join("/")
-    const wildcardFragments = rulePath.split("*")
-
-    for (const fragment of wildcardFragments) {
-      if (path.indexOf(fragment) === -1) {
-        return false
+    for (let i = 0; i < pathFragments.length; i++) {
+      if (ruleFragments[i].includes("*")) {
+        if (!pathFragments[i].includes(ruleFragments[i].replace("*", ""))) {
+          return false
+        }
+      } else {
+        if (pathFragments[i] !== ruleFragments[i]) {
+          return false
+        }
       }
     }
-
-    return true
   } else {
     return false
   }
+
+  return true
 }
 
 
@@ -242,10 +244,10 @@ function addTemplatesToMap(path) {
 
   for (let i = 0; i < pathFragments.length; i++) {
     readFragments = pathFragments.slice(0, i + 1)
-
     const ruleTemplate = getNewRuleTemplate(readFragments)
     template = !ruleTemplate ? template + helper.kebabCaseToPascalCase(pathFragments[i])
       : ruleTemplate
+
     templateMap.set(readFragments.join("/"), helper.getLowerCase(template))
   }
 }
