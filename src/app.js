@@ -96,6 +96,9 @@ function assignContent(directory, entry, iteration = 0) {
   }
 
   if (generateTemplates) {
+    if (!currentDirectory[childDirectory].hasOwnProperty("index")) {
+      currentDirectory[childDirectory].index = {}
+    }
     const path = pathFragments.slice(0, iteration + 1).join("/")
     const templateName = templateMap.get(path)
     currentDirectory[childDirectory].index.template = templateName
