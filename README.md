@@ -85,6 +85,7 @@ An example csv file can be found in the content folder.
 - **path** (e.g. "dir1/dir2:fieldName")
 - **textDE**
 - **textEN**
+- **type** (supported: "string", "markdown" and "number". If empty: string)
 
 
 #### IMPORTANT: 
@@ -95,24 +96,26 @@ therefore strings should be used.
 
 ### Rules
 Rules for the template name creation can be defined in a json file.
-A rule contains the **path** where the children templates should be renamed
-and the template child fragment which exchanges the original child.
+A rule contains a **path** and the template name every child of the defined path will get.
 
 #### Syntax:
+When defining the path, '*' works as a wildcard. \
+E.g. instead of defining the same rule for every element (element1, element2, ...) of an enumeration, using an asterisk will allow the same result with only one defined rule
 ```bash
 {
   "rules": [
     {
-      "path": "first/second",
-      "children": "new"
+      "path": "dir/elements/element*/options",
+      "template": "dirElementOption"
     }
   ]
 }
 ```
 
 #### Example:
-If the given path is **_"first/second/third/fourth"_**,
-applying the rule above will result in the template name **_"firstSecondNewFourth"_**
+If the given path is **_"dir/elements/element4/options/option1"_**,
+applying the rule above will result in the template name **_"dirElementOption"_**. \
+If no rule would be defined, the path would result in the template name **_"dirElementsElement4OptionsOption1"_**
 
 ### Run
 A path to the **csv file** and to the **existing files / empty folder** must be declared.
@@ -127,8 +130,8 @@ _(CLI parameters are order-sensitive)_
 
 - **< path to csv >** -> path to csv file containing new content
 - **< import/export path >** -> root directory path to existing content / empty folder
-- **< area >** -> area folder name in which the content should be created
+- **< area >** (optional) ->  area folder name in which the content should be created
     (default: "other")
-- **< generate templates >** -> boolean value if templates should be generated or not
+- **< generate templates >** (optional) -> boolean value if templates should be generated or not
     (default: false)
-- **< rule path >** -> path to the rule file
+- **< rule path >** (optional) -> path to the rule file
