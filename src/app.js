@@ -16,14 +16,13 @@ const templateRules = getTemplateRules(process.argv[6])
 
 const templateMap = new Map()
 
-csv()
-  .fromFile(csvFilePath)
+csv({ delimiter: ";", includeColumns: /(path|textDE|textEN|type)/ })
+  .fromFile(csvFilePath, { encoding: "latin1" })
   .then(main)
 
 function main(csvContent) {
   const existingContent = contentReader.read(importPath)
   const existingTemplates = templateReader.read(importPath)
-
   const filesContent = extractContent(existingContent, existingTemplates, csvContent)
   exporter.export(filesContent)
 }

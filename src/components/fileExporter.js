@@ -24,7 +24,7 @@ function createContentFiles(path, obj) {
 
 
 function createIndexFile(path, content) {
-  fs.writeFile(`${path}/index.json`, `${JSON.stringify(content, null, 2)}\n`, err => {
+  fs.writeFile(`${path}/index.json`, `${JSON.stringify(content, null, 2)}\n`, "utf8", err => {
     if (err) {
       return console.error(err)
     }
@@ -36,7 +36,7 @@ function createIndexFile(path, content) {
 function createTemplateFiles(path, templates) {
   for (const template in templates) {
     fs.writeFile(`${path}/${template}.json`, `${JSON.stringify(templates[template], null, 2)}\n`,
-      err => {
+      "utf8", err => {
         if (err) {
           return console.error(err)
         }
