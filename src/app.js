@@ -16,14 +16,19 @@ const templateRules = getTemplateRules(process.argv[6])
 
 const templateMap = new Map()
 
-csv({ delimiter: ";", includeColumns: /(path|textDE|textEN|type)/ })
+csv({
+  delimiter: ";",
+  includeColumns: /(path|textDE|textEN|type)/,
+  noheader: false,
+  headers: ["", "", "path", "", "", "textDE", "", "textEN", "", "", "type"]
+})
   .fromFile(csvFilePath, { encoding: "latin1" })
   .then(main)
 
 function main(csvContent) {
   const existingContent = contentReader.read(importPath)
   const existingTemplates = templateReader.read(importPath)
-  const filesContent = extractContent(existingContent, existingTemplates, csvContent)
+  const filesContent = extractContent(existingContent, existingTemplates, csvContent.slice(3))
   exporter.export(filesContent)
 }
 
@@ -63,17 +68,18 @@ function getOutputObject(existingContent, existingTemplates) {
 function getFieldProperties(entry) {
   let content = {}
 
-  switch(entry.type){
+  switch (entry.type) {
     case "markdown":
-        content.de = entry.textDE
-        content.en = entry.textEN
-        break;
+      content.de = entry.textDE
+      content.en = entry.textEN
+      break
     case "number":
-        content = parseFloat(entry.textDE)
+      content = parseFloat(entry.textDE)
+      break
     default:
-        content.de = helper.removeLineBreaks(entry.textDE)
-        content.en = helper.removeLineBreaks(entry.textEN)
-        break;
+      content.de = helper.removeLineBreaks(entry.textDE)
+      content.en = helper.removeLineBreaks(entry.textEN)
+      break
   }
 
   const field = {
