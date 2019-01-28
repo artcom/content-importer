@@ -14,16 +14,13 @@ Reads a **csv file** and uses its information to generate **index.json** files a
           - index.json
         - directoryB2
           - index.json
-        - directoryB3
-          - index.json
           - directoryC1
             - index.json
   - templates
     - directoryA1.json
     - directoryA1DirectoryB1.json
     - directoryA1DirectoryB2.json
-    - directoryA1DirectoryB3.json
-    - directoryA1DirectoryB3DirectoryC1.json
+    - directoryA1DirectoryB2DirectoryC1.json
 ````
 
 #### File Content:
@@ -32,14 +29,6 @@ Reads a **csv file** and uses its information to generate **index.json** files a
 {
   "template": "templateName",
   "fieldName1": {
-    "de": "german field content",
-    "en": "english field content"
-  },
-  "fieldName2": {
-    "de": "german field content",
-    "en": "english field content"
-  },
-  "fieldNameN": {
     "de": "german field content",
     "en": "english field content"
   }
@@ -57,14 +46,6 @@ Reads a **csv file** and uses its information to generate **index.json** files a
     {
       "name": "fieldName1",
       "type": "text"
-    },
-    {
-      "name": "fieldName2",
-      "type": "text"
-    },
-    {
-      "name": "fieldNameN",
-      "type": "text"
     }
   ]
 }
@@ -76,8 +57,8 @@ Reads a **csv file** and uses its information to generate **index.json** files a
 An example csv file can be found in the content folder.
 
 #### CSV Configuration:
-- UTF-8
-- Field Delimiter: ,
+- Encoding: latin1
+- Field Delimiter: ;
 - String Delimiter: "
 
 #### Header Names:
@@ -87,12 +68,11 @@ An example csv file can be found in the content folder.
 - **textEN**
 - **type** (supported: "string", "markdown" and "number". If empty: string)
 
+Header names are order sensitive. If the csv file contains other headers on top of the ones above, the headers array has to be adjusted in the **app.js**. Any other header can be exchange by an empty string.
+```
+headers: ["", "", "path", "", "", "textDE", "", "textEN", "", "", "type"]
+```
 
-#### IMPORTANT: 
-- The CSV-file has to start with the header names. Remove any other text above
-and below of the content that is needed.
-- Line breaks within the text content can cause errors,
-therefore strings should be used.
 
 ### Rules
 Rules for the template name creation can be defined in a json file.
