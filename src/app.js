@@ -22,7 +22,7 @@ csv({
   noheader: false,
   headers: ["", "", "path", "", "", "textDE", "", "textEN", "", "", "type"]
 })
-  .fromFile(csvFilePath, { encoding: "latin1" })
+  .fromFile(csvFilePath, { encoding: "utf8" })
   .then(main)
 
 function main(csvContent) {
