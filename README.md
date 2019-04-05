@@ -57,9 +57,23 @@ Reads a **csv file** and uses its information to generate **index.json** files a
 An example csv file can be found in the content folder.
 
 #### CSV Configuration:
-- Encoding: latin1
-- Field Delimiter: ;
-- String Delimiter: "
+- **Encoding:** UTF-8
+  -  **IMPORTANT:** Excel exports csv files on OSX differently based on the language settings
+      (German: ISO-8859-1 a.k.a. Latin-1, English: Mac Roman). The encoding can be checked for example in VS Code by changing the depiction of the encoding on the bottom right.
+
+      On OSX the encoding of a file can be changed by following cli command:
+      ```
+      iconv -f <encoding of input file> -t <new encoding> <path of input file> > <path of export file>
+      ```
+      **Example:**
+      ```
+      iconv -f MACROMAN -t UTF-8 file.csv > changedEncoding.csv
+      or
+      iconv -f ISO-8859-1 -t UTF-8 file.csv > changedEncoding.csv
+      ```
+
+- **Field Delimiter:** ;
+- **String Delimiter:** "
 
 #### Header Names:
 
