@@ -17,12 +17,12 @@ const templateRules = getTemplateRules(process.argv[6])
 const templateMap = new Map()
 
 csv({
-  delimiter: ";",
+  delimiter: "	",
   includeColumns: /(path|textDE|textEN|type)/,
   noheader: false,
   headers: ["", "", "path", "", "", "textDE", "", "textEN", "", "", "type"]
 })
-  .fromFile(csvFilePath, { encoding: "utf8" })
+  .fromFile(csvFilePath, { encoding: "utf16le" })
   .then(main)
 
 function main(csvContent) {
