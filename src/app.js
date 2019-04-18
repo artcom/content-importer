@@ -17,7 +17,7 @@ const templateRules = getTemplateRules(process.argv[6])
 const templateMap = new Map()
 
 csv({
-  delimiter: "	",
+  delimiter: "\t",
   includeColumns: /(path|textDE|textEN|type)/,
   noheader: false,
   headers: ["", "", "path", "", "", "textDE", "", "textEN", "", "", "type"]
